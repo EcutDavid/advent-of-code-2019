@@ -4,6 +4,13 @@ using namespace std;
 typedef long long i64;
 typedef int i32;
 
+unordered_map<char, pair<int, int>> dirMap = {
+    {'L', {-1, 0}},
+    {'R', {1, 0}},
+    {'U', {0, 1}},
+    {'D', {0, -1}},
+};
+
 i32 readNum(string& line, int& pc) {
   i32 num = 0;
   while (pc != line.size() && line[pc] != ',') {
@@ -15,12 +22,6 @@ i32 readNum(string& line, int& pc) {
 i32 main() {
   string l1, l2;
   cin >> l1 >> l2;
-  unordered_map<char, pair<int, int>> dirMap = {
-      {'L', {-1, 0}},
-      {'R', {1, 0}},
-      {'U', {0, 1}},
-      {'D', {0, -1}},
-  };
 
   i32 pc = 0;
   pair<int, int> pos = {0, 0};
