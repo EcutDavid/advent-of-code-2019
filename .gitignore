@@ -1,3 +1,4 @@
 *.case
 *.swp
 *.out
+.vscode

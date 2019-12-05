@@ -5,7 +5,6 @@ typedef long long i64;
 typedef int i32;
 
 i32 main() {
-  ios::sync_with_stdio(false);  // Makes IO faster, remove this line if C style scanf/printf needed.
   char c;
   i64 num;
   vector<i64> nums;
