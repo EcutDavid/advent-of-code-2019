@@ -1,98 +1,123 @@
 #include <bits/stdc++.h>
 using namespace std;
 
-typedef long long i64;
 typedef int i32;
 
-vector<int> parseModes(int opc) {
-  vector<int> modes;
+vector<i32> parseModes(i32 opc) {
+  vector<i32> modes;
   opc /= 100;
-  for (int i = 0; i < 3; i++) {
+  for (i32 i = 0; i < 3; i++) {
     modes.push_back(opc % 10);
     opc /= 10;
   }
   return modes;
 }
 
+i32 prevAmp(i32 cur) {
+  if (cur == 0) return 4;
+  return cur - 1;
+}
+
+void runCalc(int *mem, i32& pc) {
+  i32 opc = mem[pc];
+  auto m = parseModes(opc);
+  i32 lv = mem[pc + 1];
+  i32 l = m[0] == 0 ? mem[lv] : lv;
+  i32 rv = mem[pc + 2];
+  i32 r = m[1] == 0 ? mem[rv] : rv;
+
+  if (opc % 10 == 1) {
+    mem[mem[pc + 3]] = l + r;
+    pc += 4;
+  } else if (opc % 10 == 2) {
+    mem[mem[pc + 3]] = l * r;
+    pc += 4;
+  } else if (opc % 10 == 5) {
+    if (l)
+      pc = r;
+    else
+      pc += 3;
+  } else if (opc % 10 == 6) {
+    if (!l)
+      pc = r;
+    else
+      pc += 3;
+  } else if (opc % 10 == 7) {
+    mem[mem[pc + 3]] = l < r;
+    pc += 4;
+  } else if (opc % 10 == 8) {
+    mem[mem[pc + 3]] = l == r;
+    pc += 4;
+  } else {
+    cout << "?" << opc << endl;
+  }
+}
+
 i32 main() {
   char c;
-  i64 num;
-  vector<i64> nums;
+  i32 num;
+  vector<i32> mem;
   while (cin >> c) {
     if (c == ',') {
-      nums.push_back(num);
+      mem.push_back(num);
       num = 0;
       continue;
     }
     num = num * 10 + (c - '0');
   }
-  nums.push_back(num);
-  auto origin = nums;
+  mem.push_back(num);
+  auto origin = mem;
 
-  i32 pc;
-  vector<i32> seq = {0, 1, 2, 3, 4};
-  i64 best = -1e9;
+  vector<i32> seq;
+  for (i32 i = 5; i < 10; i++) {
+    seq.push_back(i);
+  }
+
+  i32 best = -1e9;
   do {
     i32 pointer = 0;
-    i64 output = 0;
-     nums = origin;
-    for (int l = 0; l < 5; l++) {
-      pc = 0;
-      while (nums[pc] != 99) {
-        int opc = nums[pc];
+    i32 rounds = 0;
+
+    vector<vector<i32>> memArr;
+    vector<i32> pcArr;
+    i32 output = 0;
+    i32 eOutput = 0;
+    for (i32 i = 0; i < 5; i++) {
+      memArr.push_back(origin);
+      pcArr.push_back(0);
+    }
+
+    while (memArr[4][pcArr[4]] != 99) {
+      i32 i = rounds % 5;
+      auto mem = &memArr[i][0];
+      i32 pc = pcArr[i];
+
+      while (mem[pc] != 99) {
+        i32 opc = mem[pc];
 
         if (opc == 3) {
-          cout << "in" << endl;
-          nums[nums[pc + 1]] = pointer % 2 == 0 ? seq[pointer / 2] : output;
+          if (pointer < 10) {
+            mem[mem[pc + 1]] = pointer % 2 == 0 ? seq[pointer / 2] : output;
+          } else {
+            mem[mem[pc + 1]] = output;
+          }
           pointer++;
           pc += 2;
           continue;
         }
         if (opc == 4) {
-          cout << "out" << endl;
-          // cout << nums[nums[pc + 1]] << endl;
-          output = nums[nums[pc + 1]];
+          output = mem[mem[pc + 1]];
           pc += 2;
-          if (pointer == 10) {
-            cout << output << endl;
-            best = max(best, output);
+          if (i == 4) {
+            eOutput = output;
           }
-          continue;
+          rounds++;
+          break;
         }
-
-        auto m = parseModes(opc);
-        int lv = nums[pc + 1];
-        int l = m[0] == 0 ? nums[lv] : lv;
-        int rv = nums[pc + 2];
-        int r = m[1] == 0 ? nums[rv] : rv;
-
-        if (opc % 10 == 1) {
-          nums[nums[pc + 3]] = l + r;
-          pc += 4;
-        } else if (opc % 10 == 2) {
-          nums[nums[pc + 3]] = l * r;
-          pc += 4;
-        } else if (opc % 10 == 5) {
-          if (l)
-            pc = r;
-          else
-            pc += 3;
-        } else if (opc % 10 == 6) {
-          if (!l)
-            pc = r;
-          else
-            pc += 3;
-        } else if (opc % 10 == 7) {
-          nums[nums[pc + 3]] = l < r;
-          pc += 4;
-        } else if (opc % 10 == 8) {
-          nums[nums[pc + 3]] = l == r;
-          pc += 4;
-        } else {
-          cout << "?" << opc << endl;
-          return 1;
-        }
+        runCalc(mem, pc);
       }
+      best = max(best, eOutput);
+      pcArr[i] = pc;
     }
   } while (next_permutation(seq.begin(), seq.end()));
 
