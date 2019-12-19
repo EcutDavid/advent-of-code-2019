@@ -89,65 +89,64 @@ vector<i64> parseProgram() {
   return mem;
 }
 
+i32 run(i32 x, i32 y, vector<i64> mem) {
+  i64 pc = 0;
+  i64 baseAddr = 0;
+  bool feedX = true;
+
+  while (mem[pc] != 99) {
+    i64 opc = mem[pc];
+    vector<i64> m = parseModes(opc);
+    i64 next = mem[pc + 1];
+    if (opc % 10 == 3) {
+      i64 addr = next + (m[0] == 2 ? baseAddr : 0);
+      mem[addr] = feedX ? x : y;
+      feedX = !feedX;
+
+      pc += 2;
+      continue;
+    }
+
+    if (opc % 10 == 4) {
+      i64 output = readValue(mem, baseAddr, pc + 1, m[0]);
+      return output;
+      pc += 2;
+      continue;
+    }
+    if (opc % 10 == 9) {
+      baseAddr += m[0] == 1 ? next : readMem(mem, baseAddr, next, m[0]);
+      pc += 2;
+      continue;
+    }
+    runCalc(mem, pc, baseAddr);
+  }
+  return -1;
+}
+
 i32 main() {
   auto mem = parseProgram();
   mem.resize(1e5);  // The program needs extra memory.
 
-  i64 pc = 0;
-  i64 baseAddr = 0;
-
-  i32 i = 0;
-  i32 j = 0;
-  bool feedJ = true;
+  i32 x = 0;
+  i32 y = 0;
   vector<vector<i32>> board;
   board.push_back({});
   i32 sum = 0;
 
-  auto org = mem;
-
   for (i32 k = 0; k < 2500; k++) {
-    mem = org;
-    pc = 0;
-    baseAddr = 0;
-    while (mem[pc] != 99) {
-      i64 opc = mem[pc];
-      vector<i64> m = parseModes(opc);
-      i64 next = mem[pc + 1];
-      if (opc % 10 == 3) {
-        i64 addr = next + (m[0] == 2 ? baseAddr : 0);
-        mem[addr] = feedJ ? j : i;
-        feedJ = !feedJ;
-
-        pc += 2;
-        continue;
-      }
-
-      if (opc % 10 == 4) {
-        i64 output = readValue(mem, baseAddr, pc + 1, m[0]);
-        board[i].push_back(output);
-        if (output == 1) sum ++;
-        pc += 2;
-        if (i == 49 && j == 49) {
-          break;
-        }
-        if (j == 49) {
-          j = 0;
-          i++;
-          board.push_back({});
-        } else {
-          j++;
-        }
-        continue;
-      }
-      if (opc % 10 == 9) {
-        baseAddr += m[0] == 1 ? next : readMem(mem, baseAddr, next, m[0]);
-        pc += 2;
-        continue;
-      }
-      runCalc(mem, pc, baseAddr);
+    i32 output = run(x, y, mem);
+    if (output == 1) sum++;
+    if (x == 49 && y == 49) {
+      break;
+    }
+    if (y == 49) {
+      y = 0;
+      x++;
+      board.push_back({});
+    } else {
+      y++;
     }
   }
-
 
   cout << sum << endl;
 }
