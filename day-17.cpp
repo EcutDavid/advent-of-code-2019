@@ -89,27 +89,40 @@ vector<i64> parseProgram() {
   return mem;
 }
 
-i32 run(i32 x, i32 y, vector<i64> mem) {
+vector<vector<i32>> dirs = {
+    {0, -1},
+    {1, 0},
+    {0, 1},
+    {-1, 0},
+};
+
+
+i32 main() {
+  auto mem = parseProgram();
+  mem.resize(1e5);  // The program needs extra memory.
+
   i64 pc = 0;
   i64 baseAddr = 0;
-  bool feedX = true;
 
   while (mem[pc] != 99) {
     i64 opc = mem[pc];
     vector<i64> m = parseModes(opc);
     i64 next = mem[pc + 1];
+    // PRINT("INPUT");
     if (opc % 10 == 3) {
       i64 addr = next + (m[0] == 2 ? baseAddr : 0);
-      mem[addr] = feedX ? x : y;
-      feedX = !feedX;
+
+      mem[addr] = 2;
 
       pc += 2;
       continue;
     }
 
     if (opc % 10 == 4) {
-      i64 output = readValue(mem, baseAddr, pc + 1, m[0]);
-      return output;
+      char output = readValue(mem, baseAddr, pc + 1, m[0]);
+      PRINT(output);
+      cout << output;
+
       pc += 2;
       continue;
     }
@@ -120,41 +133,4 @@ i32 run(i32 x, i32 y, vector<i64> mem) {
     }
     runCalc(mem, pc, baseAddr);
   }
-  return -1;
-}
-
-void printBoard(vector<vector<i32>> &board) {
-  i32 xMin = 0;
-  i32 xMax = board[0].size();
-  i32 yMin = 0;
-  i32 yMax = board.size();
-
-  for (i32 i = yMin; i < yMax; i++) {
-    for (i32 j = xMin; j < xMax; j++) {
-      cout << (board[i][j] ? '#' : '.');
-    }
-    cout << "\n";
-  }
-}
-
-i32 main() {
-  auto mem = parseProgram();
-  mem.resize(2e4);  // The program needs extra memory.
-
-  vector<vector<i32>> board;
-  for (i32 i = 0; i < 200; i++) {
-    board.push_back(vector<i32>(120));
-  }
-  i32 sum = 0;
-
-  for (i32 y = 0; y < 200; y++) {
-    for (i32 x = 0; x < 120; x++) {
-      i32 output = run(x, y, mem);
-      board[y][x] = output;
-      if (output == 1) sum++;
-    }
-  }
-
-  printBoard(board);
-  cout << sum << endl;
 }

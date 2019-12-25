@@ -139,22 +139,58 @@ void printBoard(vector<vector<i32>> &board) {
 
 i32 main() {
   auto mem = parseProgram();
-  mem.resize(2e4);  // The program needs extra memory.
+  mem.resize(1e5);  // The program needs extra memory.
 
-  vector<vector<i32>> board;
-  for (i32 i = 0; i < 200; i++) {
-    board.push_back(vector<i32>(120));
+  i32 rowCount = 5000;
+  vector<pair<i32, i32>> board(rowCount);
+  board[0] = {0, 0};
+  vector<i32> rMove;
+  vector<i32> lMove;
+  for (i32 i = 0; i < 30; i++) {
+    lMove.push_back(i);
+    rMove.push_back(i);
   }
-  i32 sum = 0;
+  i32 maxL = 0;
+  i32 maxR = 0;
 
-  for (i32 y = 0; y < 200; y++) {
-    for (i32 x = 0; x < 120; x++) {
-      i32 output = run(x, y, mem);
-      board[y][x] = output;
-      if (output == 1) sum++;
+  for (i32 i = 1; i < rowCount; i++) {
+    i32 prevL = board[i - 1].first, prevR = board[i - 1].second;
+    i32 newL = 0;
+    i32 newR = 0;
+
+    for (i32 diff : lMove) {
+      if (run(prevL + diff, i, mem)) {
+        maxL = max(maxL, diff);
+        newL = prevL + diff;
+        break;
+      }
+    }
+
+    for (i32 j = 0; j < rMove.size(); j++) {
+      i32 diff = rMove[rMove.size() - 1 - j];
+      if (run(prevR + diff, i, mem)) {
+        maxR = max(maxR, diff);
+        newR = prevR + diff;
+        break;
+      }
+    }
+
+    board[i] = { newL, newR };
+  }
+
+  PRINT(maxL);
+  PRINT(maxR);
+
+  i32 best = 1e9;
+
+  for (i32 i = 0; i < rowCount; i++) {
+    for (i32 j = board[i].first; j <= board[i].second - 100; j++) {
+      i32 rel = i + 100;
+      if ((board[rel].first <= j) && (board[rel].second >= (j + 100))) {
+        best = min(best, i + j * 10000);
+        PRINT(best);
+        // return 0;
+      }
     }
   }
-
-  printBoard(board);
-  cout << sum << endl;
 }
