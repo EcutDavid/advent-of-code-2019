@@ -147,8 +147,8 @@ i32 main() {
   }
   i32 sum = 0;
 
-  for (i32 y = 0; y < 200; y++) {
-    for (i32 x = 0; x < 120; x++) {
+  for (i32 y = 0; y < 50; y++) {
+    for (i32 x = 0; x < 50; x++) {
       i32 output = run(x, y, mem);
       board[y][x] = output;
       if (output == 1) sum++;

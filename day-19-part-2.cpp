@@ -184,12 +184,12 @@ i32 main() {
   i32 best = 1e9;
 
   for (i32 i = 0; i < rowCount; i++) {
-    for (i32 j = board[i].first; j <= board[i].second - 100; j++) {
-      i32 rel = i + 100;
-      if ((board[rel].first <= j) && (board[rel].second >= (j + 100))) {
+    for (i32 j = board[i].first; j <= board[i].second - 99; j++) {
+      i32 rel = i + 99;
+      if ((board[rel].first <= j) && (board[rel].second >= (j + 99))) {
         best = min(best, i + j * 10000);
         PRINT(best);
-        // return 0;
+        return 0;
       }
     }
   }
